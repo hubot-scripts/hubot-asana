@@ -9,6 +9,8 @@
 #   ASANA_TEAM_ID
 #   ASANA_DEFAULT_PROJECT_ID
 #   ASANA_DEFAULT_PROJECT_NAME
+#   ASANA_FORMAT_ASSIGNEE
+#   ASANA_FORMAT_PROJECT
 #
 # Commands:
 #   asana: @<name> <task name> #<project> -- Add task to asana with optional @assignee and #project.
@@ -22,6 +24,9 @@ workspace_id = process.env.ASANA_WORKSPACE_ID
 team_id = process.env.ASANA_TEAM_ID
 default_project_id = process.env.ASANA_DEFAULT_PROJECT_ID
 default_project_name = process.env.ASANA_DEFAULT_PROJECT_NAME
+default_char_assignee = process.env.ASANA_FORMAT_ASSIGNEE
+default_char_assignee = process.env.ASANA_FORMAT_ASSIGNEE ? '@'
+default_char_project = process.env.ASANA_FORMAT_PROJECT ? '#'
 
 postRequest = (msg, path, api_key, params, callback) ->
   stringParams = JSON.stringify params
@@ -50,7 +55,7 @@ addTask = (msg, api_key, params) ->
 
 getAssignee = (msg, api_key, assignee_name, callback) ->
   return callback({success: false}) if assignee_name == undefined
-  assignee_name = assignee_name.replace "@", ""
+  assignee_name = assignee_name.replace default_char_assignee, ""
   getRequest msg, '/users', api_key, (err, res, body) ->
     response = JSON.parse body
     for user in response.data
@@ -61,7 +66,7 @@ getAssignee = (msg, api_key, assignee_name, callback) ->
 
 getProject = (msg, api_key, project_name, callback) ->
   return callback({success: false}) if project_name == undefined
-  project_name = project_name.replace "#", ""
+  project_name = project_name.replace default_char_project, ""
   project_name = project_name.replace "-", " "
   matched_project_id = undefined
   getRequest msg, '/projects?archived=false', api_key, (err, res, body) ->
@@ -83,7 +88,8 @@ module.exports = (robot) ->
     robot.brain.set("asana_api_key_#{msg.message.user.name}", msg.match[1])
     msg.send "You should be good to add Asana tasks now!"
 
-  robot.hear /^asana:\s?(@\w+)? ([^#]*)\s?(#[\w-]+)?/i, (msg) ->
+  pattern = new RegExp('^asana:\\s?(' + default_char_assignee + '\\w+)? ([^' + default_char_project + ']*)\\s?(' + default_char_project + '[\\w-]+)?', 'i')
+  robot.hear pattern, (msg) ->
     api_key = robot.brain.get("asana_api_key_#{msg.message.user.name}")
     if api_key
       assignee_name = msg.match[1]
