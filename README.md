@@ -27,6 +27,14 @@ Finally, run `npm install hubot-asana` and you're done!
 
 ### Usage
 
+To use the bot, you'll have to create an api token.
+Open Asana, go to "My Profile Settings" , then "Apps", and create a new "Personal Access Tokens".
+Then you can talk 1-1 to asana with your token
+
+    asana: HERE_IS_MY_TOKEN
+
+now your are good to go.
+
 A task added to Asana must have a name. Both an assignee and a project are optional. Some examples:
 
     asana: ship some code
