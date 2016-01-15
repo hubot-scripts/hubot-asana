@@ -25,7 +25,7 @@ default_project_name = process.env.ASANA_DEFAULT_PROJECT_NAME
 
 postRequest = (msg, path, api_key, params, callback) ->
   stringParams = JSON.stringify params
-  auth = 'Basic ' + new Buffer("#{api_key}:").toString('base64')
+  auth = 'Bearer ' + api_key
   msg.http("#{url}#{path}")
     .headers("Authorization": auth, "Accept": "application/json"
            , "Content-Length": stringParams.length)
@@ -33,7 +33,7 @@ postRequest = (msg, path, api_key, params, callback) ->
       callback(err, res, body)
 
 getRequest = (msg, path, api_key, callback) ->
-  auth = 'Basic ' + new Buffer("#{api_key}:").toString('base64')
+  auth = 'Bearer ' + api_key
   msg.http("#{url}#{path}")
     .headers("Authorization": auth, "Accept": "application/json")
     .get() (err, res, body) ->
