@@ -82,6 +82,14 @@ module.exports = (robot) ->
   robot.respond /asana: (.*)$/i, (msg) ->
     robot.brain.set("asana_api_key_#{msg.message.user.name}", msg.match[1])
     msg.send "You should be good to add Asana tasks now!"
+  # show task title
+  robot.hear /https:\/\/app\.asana\.com\/(\d+)\/(\d+)\/(\d+)/, (msg) ->
+    taskId = msg.match[3]
+    api_key = robot.brain.get("asana_api_key_#{msg.message.user.name}")
+    getRequest msg, "/tasks/#{taskId}", api_key, (err, res, body) ->
+      response = JSON.parse body
+      name = response.data.name
+      msg.send "#{taskId}: #{name}"
 
   robot.hear /^asana:\s?(@\w+)? ([^#]*)\s?(#[\w-]+)?/i, (msg) ->
     api_key = robot.brain.get("asana_api_key_#{msg.message.user.name}")
